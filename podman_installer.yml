@@ -1,0 +1,17 @@
+---
+
+- hosts: redhat
+  become: yes
+  remote_user: sysadmin
+  
+  tasks:
+  - name: Installing podman.
+    yum:
+      name: podman
+      state: present
+    notify: Restart server
+
+
+  handlers:
+  - name: Restart server
+    reboot:
