@@ -1,24 +1,33 @@
 ---
-- hosts: database
+- hosts: ubuntu
   become: yes
   tasks:
 
          
          
-      - name: Add repository key to the system
+      - name: Repository key para la instalacipon de Maria DB
         apt_key: keyserver=hkp://keyserver.ubuntu.com:80 id=0xF1656F24C74CD1D8
 
-      - name: Install MariaDB repository 10.3
-        apt_repository: repo='deb [arch=amd64] http://mirror.zol.co.zw/mariadb/repo/10.3/ubuntu xenial main' state=present
-      - name: update
-        apt: update_cache=yes   
-        ignore_errors: yes      
+      - name: Instalación de MariaDB
+        apt_repository: 
+          repo: 'deb [arch=amd64] http://mirror.zol.co.zw/mariadb/repo/10.3/ubuntu xenial main' 
+          state: present
+      - name: Realizamos el update
+        apt: 
+          update_cache: yes     
 
-      - name: Install MariaDB Server 10.3
-        apt: name=mariadb-server state=latest
+      - name: Instalación MariaDB Servidor
+        apt: 
+          name: mariadb-server 
+          state: latest
         
-      - name: Install MariaDB Client 10.3
-        apt: name=mariadb-client state=latest
+      - name: Instalación MariaDB Cliente
+        apt: 
+          name: mariadb-client 
+          state: latest
 
-      - name: Restart MariaDB 10.3
-        service: name=mysql state=restarted
+      - name: Iniciamos y habilitamos el servicio de MariaDB
+        service:
+          name: mysql
+          state: started
+          enabled: true
