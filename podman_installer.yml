@@ -1,16 +1,21 @@
 ---
 
-- hosts: tester
+- hosts: redhat
   become: yes
   remote_user: sysadmin
   
   tasks:
-  - name: Installing podman.
+  - name: Instalador de PODMAN
     yum:
       name: podman
       state: present
     notify: Restart server
 
+  - name: Habilitación e inicio del servicio
+    service:
+      name: podman
+      state: started
+      enabled: true  
 
   handlers:
   - name: Restart server
