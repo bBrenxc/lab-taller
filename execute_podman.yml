@@ -1,0 +1,12 @@
+- hosts: redhat
+  become: yes
+  remote_user: sysadmin
+
+  tasks:
+  - name: Execute first command podman build
+    shell: podman build -t tomcat-demo:1 .
+  
+  handlers:
+  - name: Restart server
+    reboot:
+

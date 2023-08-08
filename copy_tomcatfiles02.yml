@@ -1,0 +1,17 @@
+- hosts: redhat
+  become: yes
+  remote_user: sysadmin
+
+  tasks:
+  - name: Copy Tomcatfiles and Samuel.txt
+    copy:
+      src: /root/sharedfiles/Dockerfile
+      dest: Dockerfile
+      owner: sysadmin
+      group: sysadmin
+    notify: Restart server
+
+  handlers:
+  - name: Restart server
+    reboot:
+

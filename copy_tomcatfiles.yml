@@ -1,0 +1,28 @@
+- hosts: redhat
+  become: yes
+  remote_user: sysadmin
+
+  tasks:
+  - name: Copy Tomcatfiles and Samuel.txt
+    copy:
+      src: /root/sharedfiles/Tomcatfile
+      dest: /etc/Tomcatfile
+      owner: sysadmin
+      group: sysadmin
+      mode: '0644'
+    notify: Restart server
+
+  tasks:
+  - name: Copy Tomcatfiles and Samuel.txt
+    copy:
+      src: /root/sharedfiles/samuel.txt
+      dest: /etc/samuel.txt
+      owner: sysadmin
+      group: sysadmin
+      mode: '0644'
+    notify: Restart server
+
+  handlers:
+  - name: Restart server
+    reboot:
+

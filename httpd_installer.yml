@@ -1,0 +1,60 @@
+---
+
+- hosts: redhat
+  remote_user: sysadmin
+  become: yes
+
+  tasks:
+  
+  - name: Installation HTTPD to create a Reverse Proxy
+    yum: 
+      name: httpd
+      state: latest
+
+  - name: Firewall ports for HTTPD
+    firewalld:
+      service: "{{ item }}"
+      state: enabled
+      permanent: true
+      immediate: true
+    loop:
+    - http
+    - https
+
+
+  - name: Enable and start HTTPD SERVICES
+    service:
+      name: httpd
+      enabled: true
+      state: started
+  
+  - name: Index file
+    copy:
+      src: /root/laboratorio-taller/index.html
+      dest: /var/www/taller/html/
+      owner: apache
+      group: apache
+
+  - name: Configuración del directorio de VH
+    file:
+     path: /etc/httpd/vhosts.d
+     state: directory
+     owner: root
+
+  - name: Virtualhost Configuration
+    copy:
+      src:  /root/laboratorio-taller/virtualhost.conf
+      dest: /etc/httpd/vhosts.d/vh.conf
+    notify: Restart apache
+
+  - name: Incluir directorio de vhost
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      line: IncludeOptional /etc/httpd/vhosts.d/*conf
+  
+  handlers:
+  - name: Restart apache
+    service: 
+      name: httpd
+      state: restarted
+
