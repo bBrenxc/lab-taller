@@ -1,12 +1,38 @@
-- hosts: redhat
+- hosts: tester
   become: yes
   remote_user: sysadmin
-
+  collections:
+    - containers.podman
   tasks:
-  - name: Execute first command podman build
-    shell: podman build -t tomcat-demo:1 .
-  
-  handlers:
-  - name: Restart server
-    reboot:
 
+  
+  - name: Credenciales para iniciar a la registry.
+    containers.podman.podman_login:
+      username: sambrence
+      password: proyecto132
+      registry: quay.io
+
+  - name: Pull mi imagen desde quay.io
+    containers.podman.podman_image:
+      name: quay.io/sambrence/tallerjulio2023/tomcat-demo
+      pull: true
+      tag: 1
+
+  - name: Ejecución de la imagen en un contenedor. Exposición de puertos y público.
+    containers.podman.podman_container:
+      name: tomcat-demo
+      image: quay.io/sambrence/tallerjulio2023/tomcat-demo:1
+      state: started
+      detach: yes
+      expose:
+        - '80'
+        - '443'
+      publish:
+        - '8080:80'
+
+  - name: Habilitar LinuxSE Bools - connect on
+    command: setsebool -P httpd_can_network_connect on
+
+
+  - name: Habilitar LinuxSE Bools - relay on
+    command: setsebool -P httpd_can_network_relay on   

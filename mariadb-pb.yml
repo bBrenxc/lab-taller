@@ -1,9 +1,13 @@
 ---
 - hosts: ubuntu
   become: yes
+  remote_user: sysadmin
+  vars_files:
+    - dbpwdsecure.yml
+
   tasks:
 
-         
+        
          
       - name: Repository key para la instalacipon de Maria DB
         apt_key: keyserver=hkp://keyserver.ubuntu.com:80 id=0xF1656F24C74CD1D8
@@ -26,8 +30,84 @@
           name: mariadb-client 
           state: latest
 
+      - name: Instalación de Pythin3-PIP
+        apt:
+          name: python3-pip
+          state: latest
+
+      - name: Instalación de PyMySQL con PIP
+        pip:
+          name: PyMySQL
+          executable: pip3.10
+          extra_args: --user
+
       - name: Iniciamos y habilitamos el servicio de MariaDB
         service:
           name: mysql
           state: started
           enabled: true
+
+
+      - name: Abrir puertos de MARIADB
+        ufw:
+         rule: allow
+         port: '3306'
+         proto: tcp
+
+      - name: agregar conf mysql
+        lineinfile:
+          path: /etc/mysql/mariadb.conf.d/50-server.cnf
+          regexp: '^bind-address'
+          line: bind-address = 0.0.0.0
+        notify: Reiniciar servidor MARIADB
+        
+     
+     
+      - name: Reiniciar servidor MARIADB
+        service:
+          name: mariadb
+          state: restarted
+
+
+#Secure instalattion     
+
+      - name: Actualizar contraseña root de MariaDB
+        mysql_user:
+          login_unix_socket: /var/run/mysqld/mysqld.sock
+          login_host: localhost
+          login_user: root
+          login_password: "{{ rootpass_ws }}"
+          check_implicit_admin: yes
+          name: root
+          host: "{{ item }}"
+          password: "{{ rootpass_ws }}"
+        loop:
+          - localhost
+          - 192.168.56.%
+          - 127.0.0.1      
+          - 192.168.56.104
+
+      - name: Eliminar usuario anónimo
+        mysql_user:
+          login_host: localhost
+          login_user: root
+          login_password: "{{ rootpass_ws }}"
+          name: ""
+          state: absent
+
+
+      - name: Eliminar base de datos test    
+        mysql_db:
+          login_host: localhost
+          login_user: root
+          login_password: "{{ rootpass_ws }}"
+          name: test
+          state: absent
+
+  handlers:
+
+      - name: Reiniciar servidor MARIADB
+        service:
+          name: mariadb
+          state: restarted
+

@@ -1,6 +1,6 @@
 ---
 
-- hosts: redhat
+- hosts: tester
   remote_user: sysadmin
   become: yes
 
