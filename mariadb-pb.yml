@@ -30,7 +30,7 @@
           name: mariadb-client 
           state: latest
 
-      - name: Instalación de Pythin3-PIP
+      - name: Instalación de Python-PIP
         apt:
           name: python3-pip
           state: latest
