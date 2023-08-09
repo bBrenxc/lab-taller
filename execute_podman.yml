@@ -1,4 +1,4 @@
-- hosts: tester
+- hosts: redhat
   become: yes
   remote_user: sysadmin
   collections:
